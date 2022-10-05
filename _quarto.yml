@@ -1,0 +1,51 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "蔡苗 | Miao Cai"
+  style: "floating"
+  page-footer:
+    left: "Copyright 2022, Miao Cai"
+    right:
+      - icon: github
+        href: https://github.com/
+      - icon: twitter
+        href: https://twitter.com/
+    border: false
+    #background: light
+  navbar:
+    background: '#08519c'
+    left:
+      - href: blogs.qmd
+        text: 博客 | Blogs
+      - href: publications.qmd
+        text: 发表 | Publications
+  #reader-mode: true
+
+format:
+  html:
+    theme:
+      light: yeti # simplex, litera
+      # dark: spacelab # slate, superhero
+    css: styles.css
+    linkcolor: '#08519c'
+    toc: true
+    toc-title: '内容 | Contents'
+    number-sections: false
+    number-depth: 3
+    code-summary: "Code"
+    code-overflow: wrap
+    smooth-scroll: true
+    header-includes: |
+      <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/tex-gyre-adventor" type="text/css"/>
+    mainfont: TeXGyreAdventorRegular
+
+comments:
+  giscus:
+    repo: quarto-dev/quarto-docs
+  hypothesis:
+    theme: clean
+
+editor: source
+
