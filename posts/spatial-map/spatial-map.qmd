@@ -194,9 +194,15 @@ ggplot() +
   coord_sf(crs = 4326)
 ```
 
+```{r}
+#| eval: false
+#| echo: false
+ggsave('ESPG-4326.png', width = 5, height = 6)
+```
+
 ![](ESPG-4326.png){width="75%" fig-align="center"}
 
-## ESPG: 4326
+## ESPG: 4508
 
 ```{r}
 #| eval: false
@@ -208,6 +214,13 @@ ggplot() +
   theme_void(base_size = 14) +
   coord_sf(crs = 4508)
 ```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave('ESPG-4508.png', width = 5, height = 6)
+```
+
 
 ![](ESPG-4508.png){width="75%" fig-align="center"}
 
@@ -222,6 +235,12 @@ ggplot() +
   labs(title = 'ESPG: 32649') +
   theme_void(base_size = 14) +
   coord_sf(crs = 32649)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave('ESPG-32649.png', width = 5, height = 6)
 ```
 
 ![](ESPG-32649.png){width="75%" fig-align="center"}
