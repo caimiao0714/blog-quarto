@@ -14,8 +14,8 @@ categories:
 
 ## 数据类型
 
-- 矢量数据（vector data）：点、线、多边形（polygons）。常见数据格式：`.shp`。
-- 栅格数据（raster data）：一般是规整的相等面积的长方形格子。常见数据格式：`.tif`和`.nc`。
+-   矢量数据（vector data）：点、线、多边形（polygons）。常见数据格式：`.shp`。
+-   栅格数据（raster data）：一般是规整的相等面积的长方形格子。常见数据格式：`.tif`和`.nc`。
 
 下图展示了矢量数据和栅格数据的示意图
 
@@ -25,26 +25,23 @@ categories:
 ![栅格数据示例（广州市区PM$_{2.5}$浓度分布）](raster-data-example.png)
 :::
 
-
 ## 相关R包
 
-- 矢量数据：
-  - 新：`sf`
-  - 旧：`sp`
-- 栅格数据：
-  - 新：`stars`
-  - 旧：`raster`, `terra`
+-   矢量数据：
+    -   新：`sf`
+    -   旧：`sp`
+-   栅格数据：
+    -   新：`stars`
+    -   旧：`raster`, `terra`
 
 ## 相关函数
 
 ### 读取数据
 
-- 矢量数据：`sf::read_sf()`
-- 栅格数据：
-  - 新：`stars::read_stars()`
-  - 旧：`raster::raster()`, `terra`
-
-
+-   矢量数据：`sf::read_sf()`
+-   栅格数据：
+    -   新：`stars::read_stars()`
+    -   旧：`raster::raster()`, `terra`
 
 # R语言实践
 
@@ -60,13 +57,11 @@ options(rgl.useNULL = TRUE)
 Sys.setenv(PROJ_LIB = '/data1/Software/Installed/Anaconda3/envs/r4.1/share/proj')
 ```
 
-
 ```{r}
 #| eval: false
 #| echo: false
 setwd('posts/spatial-map')
 ```
-
 
 ## 矢量边界绘制
 
@@ -92,7 +87,7 @@ fs::dir_info(shp_path) %>%
 4.  九段线（`NineLine.shp`）
 5.  中国省级边界（`province.shp`）
 
-### 数据读取
+### 矢量数据读取
 
 ```{r}
 CN_boundary <- read_sf(here(shp_path, 'boundary.shp'))
@@ -102,7 +97,7 @@ CN_9dash <- read_sf(here(shp_path, 'NineLine.shp'))
 CN_province <- read_sf(here(shp_path, 'province.shp'))
 ```
 
-### 数据清理
+### 矢量数据清理
 
 这些矢量数据实际就像数据框，可以使用`dplyr`（`dplyr::select()`，`mutate()`, `filter()`, `arrange()`）的语法进行操作。例如，可以使用`filter()`选取广州市的区县边界：
 
@@ -165,16 +160,27 @@ ggplot() +
   theme_void()
 ```
 
-
-### 投影
+### 矢量投影
 
 WGS84是目前最流行的地理坐标系统。在国际上，每个坐标系统都会被分配一个EPSG 代码，`EPSG:4326`就是WGS84 的代码。GPS是基于WGS84的，所以通常我们得到的坐标数据都是WGS84的。一般我们在存储数据时，仍然按WGS84存储。计算地理距离时也应该通过WGS84投影进行计算。
 
-但是如果绘图的时候使用WGS84投影，会显得靠近两极地区的面积失真。对于中国地图来说，WGS84投影非常不美观，画图来的地图像“一只强制性脊柱炎的公鸡”。因此，如果需要绘制全国地图，可以使用`ESPG: 4508`或者`ESPG: 32649`，在`ggplot2`中可以通过`coord_sf(crs = XXXX)`来设置整幅图的投影。
+但是如果绘图的时候使用WGS84投影，会显得靠近两极地区的面积失真。对于中国地图来说，WGS84投影非常不美观，画图来的地图像"一只强制性脊柱炎的公鸡"。因此，如果需要绘制全国地图，可以使用`ESPG: 4508`或者`ESPG: 32649`，在`ggplot2`中可以通过`coord_sf(crs = XXXX)`来设置整幅图的投影。
+
+对于矢量数据，可以通过`sf::transform()`对其投影进行转换，如：
+
+```{r}
+# 原始数据投影为Asia_North_Albers_Equal_Area_Conic
+CN_province
+
+# 我们将其投影为WGS84
+CN_province_4326 = st_transform(CN_province, crs = 4326)
+CN_province_4326
+```
+
+在使用`ggplot2`绘图过程中，也可以通过`coord_sf(crs = XXXX)`对投影进行转换。
 
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ## ESPG: 4326
 
 ```{r}
@@ -188,7 +194,7 @@ ggplot() +
   coord_sf(crs = 4326)
 ```
 
-![](ESPG-4326.png){width=75% fig-align="center"}
+![](ESPG-4326.png){width="75%" fig-align="center"}
 
 ## ESPG: 4326
 
@@ -203,7 +209,7 @@ ggplot() +
   coord_sf(crs = 4508)
 ```
 
-![](ESPG-4508.png){width=75% fig-align="center"}
+![](ESPG-4508.png){width="75%" fig-align="center"}
 
 ## ESPG: 32649
 
@@ -218,23 +224,54 @@ ggplot() +
   coord_sf(crs = 32649)
 ```
 
-![](ESPG-32649.png){width=75% fig-align="center"}
-
+![](ESPG-32649.png){width="75%" fig-align="center"}
 :::
-
-
-
-
-
 
 ## 栅格数据绘制
 
 ### 数据读取
 
+通过`stars::read_stars()`读取`.tif`文件得到的是`stars`数据类型，属于栅格数据类型。`stars`数据一般有三个维度（dimension）：`x`，`y`和`band`，其中`x`和`y`分别为经纬度，`band`则指时间维度，可将不同日期的数据整合到同一个`stars`对象中。除了维度之外，还包括一个属性（attribute），主要指数据变量，如空气污染和绿植覆盖。
+
 ```{r}
 pm_gz = read_stars('E:/China_shp/CHAP_PM2.5_Guangzhou.tif')
 pm_gz
 ```
+
+此处的样例数据因为是单天的数据，因此只有两个维度（`x`和y`），没有`band`的维度。数据的属性为`CHAP_PM2.5_Guangzhou`，并且报告了其简单的统计量（最小值、最大值、均值、缺失值数量以及四分位数）。每个维度都有一个名字（如`x`和`y`），每个维度的域的含义分别为：
+
+|    域    |  含义  |
+|:--------:|--------|
+|`from`    |原点|
+|`to`      |终点的索引|
+|`offset`  |此维度起始点的值|
+|`delta`   |此维度网格的大小|
+|`refsys`  |投影系统|
+|`point`   |逻辑值，`TRUE`代表点，`FALSE`代表区间|
+|`values`  |此维度的值|
+
+`stars`数据类型也可以通过`dplyr`包中的函数进行清理和转换。由于内容较多，此处不再详述，有兴趣的读者可以参考官方手册：
+
+- [stars tidyverse methods](https://cran.r-project.org/web/packages/stars/vignettes/stars3.html)
+
+### 栅格数据清理
+
+```{r}
+pacman::p_load(cubelyr)
+
+pm_gz_cube = as.tbl_cube(pm_gz)
+str(pm_gz_cube)
+```
+
+可以将其转换成`data.frame`以方便后续的操作，如双线性插值等。
+
+```{r}
+pm_gz_tbl = as_tibble(pm_gz)
+str(pm_gz_tbl)
+```
+
+
+
 
 ### 栅格数据绘制
 
@@ -258,8 +295,6 @@ ggplot() +
   coord_sf(crs = 4326)
 ```
 
-
-
 ### 栅格和矢量数据混合绘制
 
 单纯的栅格数据比较单调，缺少行政边界信息。通过`ggplot2`的图层，我们可以轻松地加上矢量边界信息。
@@ -276,7 +311,7 @@ ggplot() +
 
 ## 矢量和栅格数据相互转换
 
-### 矢量 --> 等面积格子
+### 矢量 --\> 等面积格子
 
 将行政边界数据转换成相等大小的小格子。
 
@@ -305,19 +340,16 @@ ggplot() +
   theme_void()
 ```
 
-
-### 栅格 --> 矢量
+### 栅格 --\> 矢量
 
 ```{r}
 pm_gz
 ```
 
-
 ```{r}
 pm_gz_sf = st_as_sf(pm_gz, as_points = FALSE, merge = FALSE)
 pm_gz_sf
 ```
-
 
 ```{r}
 ggplot() + 
@@ -371,7 +403,6 @@ ggplot() +
   coord_sf(crs = 4326)
 ```
 
-
 ## `sf` points
 
 ## sample from multivariate normal distributions
@@ -416,10 +447,6 @@ ggplot() +
   theme_void()
 ```
 
-
-
-
-
 ```{r}
 #| eval: false
 #| echo: false
@@ -446,7 +473,6 @@ ggplot() +
 ggsave('raster-data-example.png', width = 6, height = 6)
 ```
 
-
 ```{r}
 #| eval: false
 #| echo: false
@@ -457,5 +483,3 @@ ggplot() +
   coord_sf(crs = 4326)
 ggsave('vector-data-example.png', width = 6, height = 6)
 ```
-
-
