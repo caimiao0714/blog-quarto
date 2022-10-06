@@ -36,6 +36,7 @@ format:
     number-depth: 3
     code-summary: "Code"
     code-overflow: wrap
+    code-copy: true
     smooth-scroll: true
     header-includes: |
       <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/tex-gyre-adventor" type="text/css"/>
@@ -48,4 +49,5 @@ comments:
     theme: clean
 
 editor: source
-
+page-navigation: true
+collapse-level: 1

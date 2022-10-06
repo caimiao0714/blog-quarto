@@ -14,15 +14,16 @@ categories:
 
 ## 数据类型
 
--   矢量数据（vector data）：点、线、多边形（polygons）。常见数据格式：`.shp`。
--   栅格数据（raster data）：一般是规整的相等面积的长方形格子。常见数据格式：`.tif`和`.nc`。
+- 栅格数据（raster data）：一般是规整的相等面积的长方形格子。常见数据格式：`.tif`和`.nc`。
+- 矢量数据（vector data）：点、线、多边形（polygons）。常见数据格式：`.shp`。
+
 
 下图展示了矢量数据和栅格数据的示意图
 
 ::: {layout="[10,10]" layout-valign="bottom"}
-![矢量数据示例（广州市区县边界）](vector-data-example.png)
+![栅格数据示例（广州市PM$_{2.5}$浓度分布）](raster-data-example-noborder.png)
 
-![栅格数据示例（广州市区PM$_{2.5}$浓度分布）](raster-data-example.png)
+![矢量数据示例（广州市区县边界）](vector-data-example.png)
 :::
 
 ## 相关R包
@@ -42,6 +43,13 @@ categories:
 -   栅格数据：
     -   新：`stars::read_stars()`
     -   旧：`raster::raster()`, `terra`
+    
+### 数据绘图
+
+此处只介绍运用`ggplot2`图层语法进行绘图的函数
+
+-   矢量数据：`geom_sf()`
+-   栅格数据：`geom_stars()`
 
 # R语言实践
 
@@ -51,17 +59,13 @@ categories:
 
 ```{r}
 #| run: FALSE
-pacman::p_load(sf, stars, raster, dplyr, ggplot2, viridis, here, patchwork, ggspatial)
+pacman::p_load(raster, sf, stars, cubelyr, dplyr, ggplot2, viridis, here, ggspatial)
 
 options(rgl.useNULL = TRUE)
 Sys.setenv(PROJ_LIB = '/data1/Software/Installed/Anaconda3/envs/r4.1/share/proj')
 ```
 
-```{r}
-#| eval: false
-#| echo: false
-setwd('posts/spatial-map')
-```
+
 
 ## 矢量边界绘制
 
@@ -69,14 +73,23 @@ setwd('posts/spatial-map')
 
 ### 数据位置
 
-```{r, echo = c(1, 3:6)}
+```{r, echo = c(1:2, 6:9)}
 #| run: FALSE
-shp_path = '/data2/ShareData/MAP/China_shp/'
+shp_path = '/data2/ShareData/MAP/China_shp'
+public_path = '/data1/Public'
+
 shp_path = 'E:/China_shp'
+public_path = './'
 
 fs::dir_info(shp_path) %>% 
   select(path, size) %>% 
   filter(grepl('\\.shp', path))
+```
+
+```{r}
+#| eval: true
+#| echo: false
+public_path = 'posts/spatial-map'
 ```
 
 从上到下分别是：
@@ -90,11 +103,11 @@ fs::dir_info(shp_path) %>%
 ### 矢量数据读取
 
 ```{r}
-CN_boundary <- read_sf(here(shp_path, 'boundary.shp'))
-CN_city <- read_sf(here(shp_path, 'city.shp'))
-CN_county <- read_sf(here(shp_path, 'county.shp'))
-CN_9dash <- read_sf(here(shp_path, 'NineLine.shp'))
-CN_province <- read_sf(here(shp_path, 'province.shp'))
+CN_boundary = read_sf(here(shp_path, 'boundary.shp'))
+CN_city = read_sf(here(shp_path, 'city.shp'))
+CN_county = read_sf(here(shp_path, 'county.shp'))
+CN_9dash = read_sf(here(shp_path, 'NineLine.shp'))
+CN_province = read_sf(here(shp_path, 'province.shp'))
 ```
 
 ### 矢量数据清理
@@ -106,27 +119,44 @@ CN_county %>%
   filter(市 == '广州市')
 ```
 
+类似地，也可以选取广州市各个区县的数据，如：
+
+```{r}
+CN_county %>% 
+  filter(市 == '广州市' & NAME == '越秀区')
+```
+
 ### 矢量边界绘制
 
 我们可以使用`ggplot2::geom_sf()`对广州市的区县边界进行绘制：
 
+::: {.grid layout-valign="bottom"}
+
+::: {.g-col-7}
 ```{r}
-#| output-location: column
-#| fig.width: 5
-#| fig-height: 4
+#| eval: false
 ggplot() + 
   geom_sf(
     data = CN_county %>% 
       filter(市 == '广州市')) +
   theme_void()
 ```
+:::
+
+::: {.g-col-5}
+![](gz-gray-fill.png)
+:::
+
+:::
+
 
 如果你讨厌灰色的填充颜色，也可以通过`fill = NA`把颜色去掉：
 
+::: {.grid}
+
+::: {.g-col-7}
 ```{r}
-#| output-location: column
-#| fig.width: 5
-#| fig-height: 4
+#| eval: false
 ggplot() + 
   geom_sf(
     data = CN_county %>% 
@@ -134,13 +164,22 @@ ggplot() +
     fill = NA) +
   theme_void()
 ```
+:::
 
-加上指北针和标尺
+::: {.g-col-5}
+![](gz-no-fill.png)
+:::
 
+:::
+
+
+我们可以通过`ggspatial::annotation_north_arrow()`和`ggspatial::annotation_north_arrow()`分别加上指北针和标尺。具体样式可以参考相关R文档进行修改。
+
+::: {.grid layout-valign="bottom"}
+
+::: {.g-col-7}
 ```{r}
-#| output-location: column
-#| fig.width: 5
-#| fig-height: 4
+#| eval: false
 ggplot() + 
   geom_sf(
     data = CN_county %>% 
@@ -159,6 +198,15 @@ ggplot() +
     pad_y = unit(0.5, "cm")) +
   theme_void()
 ```
+:::
+
+::: {.g-col-5}
+![](gz-no-fill-noarrow.png)
+:::
+
+:::
+
+
 
 ### 矢量投影
 
@@ -170,11 +218,11 @@ WGS84是目前最流行的地理坐标系统。在国际上，每个坐标系统
 
 ```{r}
 # 原始数据投影为Asia_North_Albers_Equal_Area_Conic
-CN_province
+head(CN_province)
 
 # 我们将其投影为WGS84
 CN_province_4326 = st_transform(CN_province, crs = 4326)
-CN_province_4326
+head(CN_province_4326)
 ```
 
 在使用`ggplot2`绘图过程中，也可以通过`coord_sf(crs = XXXX)`对投影进行转换。
@@ -200,7 +248,7 @@ ggplot() +
 ggsave('ESPG-4326.png', width = 5, height = 6)
 ```
 
-![](ESPG-4326.png){width="75%" fig-align="center"}
+![](ESPG-4326.png){width="60%" fig-align="center"}
 
 ## ESPG: 4508
 
@@ -221,29 +269,8 @@ ggplot() +
 ggsave('ESPG-4508.png', width = 5, height = 6)
 ```
 
+![](ESPG-4508.png){width="60%" fig-align="center"}
 
-![](ESPG-4508.png){width="75%" fig-align="center"}
-
-## ESPG: 32649
-
-```{r}
-#| eval: false
-ggplot() + 
-  geom_sf(data = CN_province, fill = NA, size = 0.1) +
-  geom_sf(data = CN_9dash %>% 
-            filter(LEFT_FID == 0)) +
-  labs(title = 'ESPG: 32649') +
-  theme_void(base_size = 14) +
-  coord_sf(crs = 32649)
-```
-
-```{r}
-#| eval: false
-#| echo: false
-ggsave('ESPG-32649.png', width = 5, height = 6)
-```
-
-![](ESPG-32649.png){width="75%" fig-align="center"}
 :::
 
 ## 栅格数据绘制
@@ -253,21 +280,25 @@ ggsave('ESPG-32649.png', width = 5, height = 6)
 通过`stars::read_stars()`读取`.tif`文件得到的是`stars`数据类型，属于栅格数据类型。`stars`数据一般有三个维度（dimension）：`x`，`y`和`band`，其中`x`和`y`分别为经纬度，`band`则指时间维度，可将不同日期的数据整合到同一个`stars`对象中。除了维度之外，还包括一个属性（attribute），主要指数据变量，如空气污染和绿植覆盖。
 
 ```{r}
-pm_gz = read_stars('E:/China_shp/CHAP_PM2.5_Guangzhou.tif')
+pm_gz = read_stars(here(public_path, 'CHAP_PM2.5_Guangzhou.tif'))
 pm_gz
 ```
 
-此处的样例数据因为是单天的数据，因此只有两个维度（`x`和y`），没有`band`的维度。数据的属性为`CHAP_PM2.5_Guangzhou`，并且报告了其简单的统计量（最小值、最大值、均值、缺失值数量以及四分位数）。每个维度都有一个名字（如`x`和`y`），每个维度的域的含义分别为：
+此处的样例数据因为是单天的数据，因此只有两个维度（`x`和`y`），没有`band`的维度。数据的属性为`CHAP_PM2.5_Guangzhou`，并且报告了其简单的统计量（最小值、最大值、均值、缺失值数量以及四分位数）。每个维度都有一个名字（如`x`和`y`），每个维度的域的含义分别为：
 
-|    域    |  含义  |
-|:--------:|--------|
-|`from`    |原点|
-|`to`      |终点的索引|
+|    域    |      含义      |
+|:--------:|----------------|
+|`from`    |原点            |
+|`to`      |终点的索引      |
 |`offset`  |此维度起始点的值|
 |`delta`   |此维度网格的大小|
-|`refsys`  |投影系统|
+|`refsys`  |投影系统        |
 |`point`   |逻辑值，`TRUE`代表点，`FALSE`代表区间|
-|`values`  |此维度的值|
+|`values`  |此维度的值      |
+
+对于某个维度第i处的坐标为`offset + (i - 1)*delta`， 此值对应的是该栅格或区间的起始点。如果想得到该栅格或区间的中间点，则需额外加上0.5倍的`offset`。
+
+
 
 `stars`数据类型也可以通过`dplyr`包中的函数进行清理和转换。由于内容较多，此处不再详述，有兴趣的读者可以参考官方手册：
 
@@ -275,14 +306,16 @@ pm_gz
 
 ### 栅格数据清理
 
-```{r}
-pacman::p_load(cubelyr)
+`stars`数据是`cubelyr`包中`tbl_cube`类型的一般化形式，我们可以通过`cubelyr::as.tbl_cube()`函数进行转换：
 
+```{r}
 pm_gz_cube = as.tbl_cube(pm_gz)
+pm_gz_cube
+
 str(pm_gz_cube)
 ```
 
-可以将其转换成`data.frame`以方便后续的操作，如双线性插值等。
+另外，我们也可以将其转换成`data.frame`以方便后续的操作，如双线性插值等。
 
 ```{r}
 pm_gz_tbl = as_tibble(pm_gz)
@@ -292,62 +325,149 @@ str(pm_gz_tbl)
 
 
 
+
+
 ### 栅格数据绘制
 
+我们可以通过`ggplot2`中的`geom_stars()`对`stars`数据进行绘制。
+
+::: {.grid}
+
+::: {.g-col-7}
 ```{r}
+#| eval: false
 ggplot() +
   geom_stars(data = pm_gz) +
-  scale_fill_viridis(option = 'A', direction = -1, na.value = 'white', breaks = 20:29) +
+  scale_fill_viridis(
+    option = 'A', 
+    direction = -1, 
+    na.value = 'white', 
+    breaks = 20:29) +
   labs(fill = latex2exp::TeX('PM$_{2.5}$')) +
-  guides(fill = guide_coloursteps( # guide_colourbar
+  guides(fill = guide_coloursteps( 
       title.position = "top",
-      title.theme = element_text(size = 16),
       title.hjust = 0.5,
       label.hjust = 1,
       show.limits = TRUE,
       barwidth = unit(0.7, "cm"),
-      barheight = unit(7, "cm"),
-      ticks = FALSE,
-      ticks.colour = 'white',
-      ticks.linewidth = 1.5)) +
+      barheight = unit(7, "cm"))) +
   theme_void(base_size = 16) +
   coord_sf(crs = 4326)
 ```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave('pm_stars.png', width = 5, height = 6)
+```
+:::
+
+::: {.g-col-5}
+![](pm_stars.png)
+:::
+
+:::
+
+
+
 
 ### 栅格和矢量数据混合绘制
 
 单纯的栅格数据比较单调，缺少行政边界信息。通过`ggplot2`的图层，我们可以轻松地加上矢量边界信息。
 
+
+::: {.grid}
+
+::: {.g-col-7}
 ```{r}
+#| eval: false
 ggplot() +
   geom_stars(data = pm_gz) +
   geom_sf(data = CN_county %>% 
       filter(市 == '广州市'), fill = NA) +
-  scale_fill_viridis(option = 'A', direction = -1, na.value = 'white') +
+  scale_fill_viridis(
+    option = 'A', 
+    direction = -1, 
+    na.value = 'white', 
+    breaks = 20:29) +
+  labs(fill = latex2exp::TeX('PM$_{2.5}$')) +
+  guides(fill = guide_coloursteps( 
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 1,
+      show.limits = TRUE,
+      barwidth = unit(0.7, "cm"),
+      barheight = unit(7, "cm"))) +
   theme_void(base_size = 16) +
   coord_sf(crs = 4326)
 ```
 
-## 矢量和栅格数据相互转换
-
-### 矢量 --\> 等面积格子
-
-将行政边界数据转换成相等大小的小格子。
-
 ```{r}
+#| eval: false
+#| echo: false
+ggsave('pm_stars_gz-border.png', width = 5, height = 6)
+```
+:::
+
+::: {.g-col-5}
+![](pm_stars_gz-border.png)
+:::
+
+:::
+
+
+
+## 矢量和栅格数据交互处理
+
+### 矢量 $\rightarrow$ 等面积格子
+
+我们可以通过`sf::st_make_grid()`函数将行政边界转换成相等大小的格子，类似栅格数据。
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
 gz_rect = CN_city %>% 
   filter(市 == '广州市') %>% 
   st_transform(crs = 4326) %>% 
-  st_make_grid(cellsize = c(0.02, 0.02))
+  st_make_grid(cellsize = c(0.05, 0.05))
 
 ggplot() + 
-  geom_sf(data = gz_rect, fill = NA, size = 0.1) +
-  geom_sf(data = filter(CN_county, 市 == '广州市'), 
-          fill = 'gray60', alpha = 0.3, size = 0.5) +
+  geom_sf(data = gz_rect, 
+          fill = NA, 
+          size = 0.1) +
+  geom_sf(data = CN_county %>% 
+            filter(市 == '广州市'), 
+          fill = '#08519c', 
+          alpha = 0.5, 
+          size = 0.5) +
   theme_void()
 ```
 
 ```{r}
+#| eval: false
+#| echo: false
+ggsave('gz_rectangular.png', width = 5, height = 7)
+```
+
+:::
+
+::: {.g-col-5}
+![](gz_rectangular.png)
+:::
+
+:::
+
+上图中规整的正方形格子（矢量边界）为`sf::st_make_grid()`转换后的数据，蓝色填充的多边形为广州市区县边界。
+
+需要注意的是，此时的格子`gz_rect`并非完美覆盖广州市的边界，而是能够环绕广州市边界的矩形，其面积大于广州市面积，包含不少不属于广州市的小格子（见图中）。我们可以用过`sf::st_intersection()`函数来保留只属于广州的小格子。
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
 gz_grids = st_intersection(
   gz_rect, 
   CN_city %>% 
@@ -355,116 +475,733 @@ gz_grids = st_intersection(
     st_transform(crs = 4326))
 
 ggplot() + 
-  geom_sf(data = gz_grids, fill = NA) +
+  geom_sf(
+    data = gz_grids, 
+    fill = NA) +
   theme_void()
 ```
 
-### 栅格 --\> 矢量
+```{r}
+#| eval: false
+#| echo: false
+ggsave('gz_grids-0.5.png', width = 5, height = 7)
+```
+:::
+
+::: {.g-col-5}
+![](gz_grids-0.5.png)
+:::
+
+:::
+
+
+### 栅格 $\rightarrow$ 矢量
+
+由于广州市1km*1km的格子太多，不利于看清本文中天秀的操作，所以此小节中以中山大学南校区所在的海珠区为例进行展示。
 
 ```{r}
-pm_gz
+haizhu_pm_2.5 = read_stars(here(public_path, 'Haizhu_Guangzhou_PM2.5.tif'))
+haizhu_pm_2.5
 ```
 
-```{r}
-pm_gz_sf = st_as_sf(pm_gz, as_points = FALSE, merge = FALSE)
-pm_gz_sf
-```
+此处读入的数据`haizhu_pm_2.5`为`stars`格式的栅格数据，接下来我们可以通过`st_as_sf()`函数将`stars`数据转换成规整的矢量多边形（其实是正四边形）数据：
 
 ```{r}
+pm_haizhu_sf = st_as_sf(haizhu_pm_2.5, as_points = FALSE, merge = FALSE)
+head(pm_haizhu_sf)
+```
+
+我们可以通过绘图展示转换后的矢量多边形数据。此处我有意用`color = 'white'`加上栅格格子的边界，只用于提醒这里是规则格子的矢量多边形，而不是栅格数据。其实细心地读者可以发现这里用的是`geom_sf()`，因此绘图的对象为矢量多边形数据，而并非栅格数据（栅格数据应该用`geom_stars()`进行绘制）。海珠区的行政边界我用鲜艳的红色标出。
+
+
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
 ggplot() + 
-  geom_sf(data = pm_gz_sf, fill = NA) +
+  geom_sf(data = pm_haizhu_sf, 
+          fill = '#08519c',
+          color = 'white',
+          size = 0.2) +
+  geom_sf(data = CN_county %>% 
+    filter(NAME == '海珠区') %>% 
+    st_transform(crs = 4326),
+    fill = NA, size = 1, color = 'red') +
   theme_void()
 ```
 
-可以加上格子的边界，只用于提醒这里是规则格子的矢量多边形，而不是栅格数据。
+```{r}
+#| eval: false
+#| echo: false
+ggsave('haizhu_grids_border.png', width = 7, height = 5)
+```
+:::
+
+::: {.g-col-5}
+![](haizhu_grids_border.png)
+:::
+
+:::
+
+我们也可以在`geom_sf()`中设置`fill`的参数来绘制PM$_{2.5}$，注意需要在`geom_sf()`的`aes`中设置。
+
+- 错误：`geom_sf(data = XX, fill = PM2.5)`
+- 正确：`geom_sf(data = XX, aes(fill = PM2.5))`
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() + 
+  geom_sf(
+    data = pm_haizhu_sf, 
+    aes(fill = Haizhu_Guangzhou_PM2.5.tif),
+    color = 'white', size = 0.2) +
+  geom_sf(data = CN_county %>% 
+    filter(NAME == '海珠区') %>% 
+    st_transform(crs = 4326),
+    fill = NA, size = 1, color = 'red') +
+  scale_fill_viridis(
+    option = 'A', direction = -1, 
+    na.value = 'white',  breaks = 20:30) +
+  labs(fill = latex2exp::TeX('PM$_{2.5}$')) +
+  theme_void(base_size = 16)
+```
 
 ```{r}
-ggplot() +
-  geom_sf(data = pm_gz_sf, aes(fill = CHAP_PM2.5_Guangzhou.tif), 
-          color = 'white', size = 0.1) +
-  scale_fill_viridis(option = 'A', direction = -1, na.value = 'white', breaks = 20:29) +
-  labs(fill = latex2exp::TeX('PM$_{2.5}$')) +
-  guides(fill = guide_coloursteps( # guide_colourbar
-      title.position = "top",
-      title.theme = element_text(size = 16),
-      title.hjust = 0.5,
-      label.hjust = 1,
-      show.limits = TRUE,
-      barwidth = unit(0.7, "cm"),
-      barheight = unit(7, "cm"),
-      ticks = FALSE,
-      ticks.colour = 'white',
-      ticks.linewidth = 1.5)) +
-  theme_void(base_size = 16) +
-  coord_sf(crs = 4326)
+#| eval: false
+#| echo: false
+ggsave('haizhu_grids_border_fill.png', width = 7, height = 5)
 ```
+:::
+
+::: {.g-col-5}
+![](haizhu_grids_border_fill.png)
+:::
+
+:::
+
+
+我们也可以在`geom_sf()`中设置`color = NA`来去掉白色的边界。注意，由于不涉及任何数据框中的变量，因此不是在`aes()`中设置。
+
 
 去掉白色的边界后图如下所示，生成的图与使用`geom_stars()`和栅格数据画出来的图像一模一样。
 
+::: {.grid}
+
+::: {.g-col-7}
 ```{r}
-ggplot() +
-  geom_sf(data = pm_gz_sf, aes(fill = CHAP_PM2.5_Guangzhou.tif), 
-          color = NA) +
-  scale_fill_viridis(option = 'A', direction = -1, na.value = 'white', breaks = 20:29) +
+#| eval: false
+ggplot() + 
+  geom_sf(
+    data = pm_haizhu_sf, 
+    aes(fill = Haizhu_Guangzhou_PM2.5.tif),
+    color = NA) +
+  geom_sf(data = CN_county %>% 
+    filter(NAME == '海珠区') %>% 
+    st_transform(crs = 4326),
+    fill = NA, size = 1, color = 'red') +
+  scale_fill_viridis(
+    option = 'A', direction = -1, 
+    na.value = 'white',  breaks = 20:30) +
   labs(fill = latex2exp::TeX('PM$_{2.5}$')) +
-  guides(fill = guide_coloursteps( # guide_colourbar
+  theme_void(base_size = 16)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave(here(public_path, 'haizhu_grids_fill_nocolor.png'),
+       width = 7, height = 5)
+```
+:::
+
+::: {.g-col-5}
+![](haizhu_grids_fill_nocolor.png)
+:::
+
+:::
+
+
+
+### 基于矢量边界选出栅格数据
+
+在上述海珠区的操作中，我们是直接读取已经与处理好的海珠区的PM$_{2.5}$的栅格数据。此部分将展示如何基于矢量边界来裁剪栅格数据。
+
+以广州为例，如果我们想选出中山大学公卫学院所在的越秀区的PM$_{2.5}$浓度的栅格数据，我们需要首先选出越秀区的矢量行政边界：
+
+```{r}
+yuexiu_sf = CN_county %>% 
+  filter(NAME == '越秀区') %>% 
+  st_transform(crs = 4326)
+```
+
+然后我们可以使用`st_crop()`来对栅格数据进行裁剪。语法为`st_crop(x, y)`，其中`x`为栅格数据，`y`为矢量边界数据
+
+```{r}
+yuexiu_pm2.5 = st_crop(pm_gz, yuexiu_sf)
+yuexiu_pm2.5
+```
+
+
+
+然后我们可将越秀区PM$_{2.5}$浓度的栅格数据与矢量边界数据画出：
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() +
+  geom_stars(data = yuexiu_pm2.5) +
+  geom_sf(data = yuexiu_sf, fill = NA) +
+  scale_fill_viridis(
+    option = 'A', direction = -1, 
+    na.value = 'white', 
+    breaks = seq(20, 25, 0.5)) +
+  labs(fill = latex2exp::TeX('PM$_{2.5}$'),
+       title = 'Yuexiu district') +
+  guides(fill = guide_coloursteps(
       title.position = "top",
-      title.theme = element_text(size = 16),
       title.hjust = 0.5,
       label.hjust = 1,
       show.limits = TRUE,
       barwidth = unit(0.7, "cm"),
-      barheight = unit(7, "cm"),
-      ticks = FALSE,
-      ticks.colour = 'white',
-      ticks.linewidth = 1.5)) +
+      barheight = unit(7, "cm"))) +
   theme_void(base_size = 16) +
   coord_sf(crs = 4326)
 ```
 
-## `sf` points
+```{r}
+#| eval: false
+#| echo: false
+ggsave('yuexiu-pm2.5-border.png', width = 6, height = 6)
+```
 
-## sample from multivariate normal distributions
+:::
+
+::: {.g-col-5}
+![](yuexiu-pm2.5-border.png)
+:::
+
+:::
+
+
+# 病人地址数据绘图实战
 
 ```{r}
-n_obs = 5*10^3
-
-
-
-sigma <- matrix(c(1, 1, 1, 1), 2, 2)
-
-var_comp = MASS::mvrnorm(n = n_obs, rep(0, 2), sigma) %>% 
-  as.data.frame()
-colnames(var_comp) = c('var1', 'var2')
-
-sysu = tibble(
-    lat = c(23.128, 23.09, 23.13, 23.10, 23.23, 23.11),
-    lon = c(113.289, 113.29, 113.32, 113.33, 113.22, 113.42)) %>% 
-  slice(sample(1:n(), n_obs, replace = T)) %>% 
-  bind_cols(var_comp) %>% 
-  mutate(lat = lat + var1,
-         lon = lon + var1)
-
-
-sysu_sf = sysu %>% 
-  st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
-  mutate(intersection = geometry %>% 
-           st_intersects(
-             CN_city %>% 
-               filter(市 == '广州市') %>% 
-               st_transform(crs = 4326)) %>% 
-           as.character()) %>% 
-  filter(intersection == 1)
-
-
-
-ggplot() + 
-  geom_sf(
-    data = CN_county %>% 
-      filter(市 == '广州市'), fill = NA) +
-  geom_sf(data = sysu_sf, size = 1, alpha = 0.2) +
-  theme_void()
+gz_point_df = readr::read_csv(here(public_path, 'Guangzhou_points.csv'), show_col_types = FALSE)
+gz_point_df
 ```
+
+## 地址分布网格图
+
+### 转换为矢量点
+
+首先需要把经纬度的点转换成`sf`矢量点的数据，可以通过`sf::st_as_sf()`函数来实现
+
+```{r}
+gz_point_sf = st_as_sf(gz_point_df, coords = c("X", "Y"), crs = 4326)
+gz_point_sf
+```
+
+### 筛选广州内的点
+
+然后需要需要筛选出落在广州市内部的点，可以通过`sf::st_filter(A, B)`来实现，其中`A`为矢量点数据，`B`是矢量多边形边界数据。特别需要注意的是，需要保证`A`和`B`的投影保持一致，基于前述关于经纬度的解释，建议保持`A`和`B`的投影均为`WGS84`，即`ESPG:4326`。
+
+```{r}
+gz_poly_sf = CN_city %>% 
+  filter(市 == '广州市') %>% 
+  st_transform(crs = 4326)
+
+gz_point_sf_within = st_filter(
+  gz_point_sf, 
+  gz_poly_sf)
+
+gz_point_sf_within
+```
+
+###  创造广州市内的格子
+
+如前述“矢量 $\rightarrow$ 等面积格子”中介绍过，我们可以通过`st_make_grid()`生成均匀的正方形格子，然后`st_intersection`裁剪广州市内的格子。
+
+```{r}
+gz_square_sf = gz_poly_sf %>% 
+  st_make_grid(cellsize = c(0.025, 0.025)) %>% 
+  st_intersection(gz_poly_sf) %>% 
+  st_as_sf()
+gz_square_sf
+```
+
+### 计算格子内人数
+
+可以通过`st_intersects()`来计算每个格子中的人数
+
+```{r}
+gz_intersect = st_intersects(gz_square_sf, gz_point_sf_within) %>% 
+  lengths()
+str(gz_intersect)
+```
+
+此处`gz_intersect`的长度为1164，刚好是我们前面生成的广州市5*5格子（`gz_square_sf`）的数量。
+
+### 准备绘图数据
+
+我们可以通过`dplyr::mutate()`函数将这个计数变量加在`gz_square_sf`这个数据上，用于`ggplot2`的绘图。
+
+```{r}
+gz_square_sf_count = gz_square_sf %>% 
+  mutate(count = gz_intersect)
+gz_square_sf_count
+```
+
+### 绘图
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() +
+  geom_sf(data = gz_square_sf_count, 
+          aes(fill = count), 
+          color = 'gray70', size = 0.15) +
+  scale_fill_continuous(
+    type = "viridis", 
+    option = 'A', 
+    direction = -1, 
+    guide = guide_colorsteps(
+      title = 'Count',
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 1,
+      show.limits = TRUE,
+      barwidth = unit(1, "cm"),
+      barheight = unit(6, "cm"))) +
+  labs(fill = 'count') +
+  theme_void(base_size = 16)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave(here(public_path, 'pat_gz_grids.png'), width = 5, height = 6)
+```
+
+:::
+
+::: {.g-col-5}
+![](pat_gz_grids.png)
+:::
+
+:::
+
+
+
+此处的颜色分布过于单一（个别格子的值过大），看不出太多的空间分布特征，我们可以通过对`count`变量进行排序进行初步验证：
+
+```{r}
+gz_square_sf_count %>% 
+  arrange(-count) %>% 
+  print(n = 10)
+```
+
+
+我们可以通过`limits`和`oob`参数设定来修改配色范围，并且通过`breaks`和`labels`参数设定来修改图例，使得配色更好看，图例也更合理。代码及样图展示如下
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() +
+  geom_sf(data = gz_square_sf_count, 
+          aes(fill = count), 
+          color = 'gray70', size = 0.15) +
+  scale_fill_continuous(
+    type = "viridis", 
+    option = 'A', 
+    direction = -1, 
+    limits = c(0, 120), 
+    oob = scales::squish,
+    breaks = seq(0, 120, 20), 
+    labels = ~ ifelse(.x < 120, .x, '>120'),
+    guide = guide_colorsteps(
+      title = 'Count',
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 1,
+      show.limits = TRUE,
+      barwidth = unit(1, "cm"),
+      barheight = unit(6, "cm"))) +
+  labs(fill = 'count') +
+  theme_void(base_size = 16)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave(here(public_path, 'pat_gz_grids_rescale.png'), width = 5, height = 6)
+```
+
+:::
+
+::: {.g-col-5}
+![](pat_gz_grids_rescale.png)
+:::
+
+:::
+
+也可以加上市和区县边界，可以显得更美观：
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() +
+  geom_sf(data = gz_square_sf_count, 
+          aes(fill = count), 
+          color = 'gray80', size = 0.15) +
+  geom_sf(data = CN_county %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray40', size = 0.3) +
+  geom_sf(data = CN_city %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray50', size = 0.5) +
+  scale_fill_continuous(
+    type = "viridis", 
+    option = 'A', 
+    direction = -1, 
+    limits = c(0, 120), 
+    oob = scales::squish,
+    breaks = seq(0, 120, 20), 
+    labels = ~ ifelse(.x < 120, .x, '>120'),
+    guide = guide_colorsteps(
+      title = 'Count',
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 1,
+      show.limits = TRUE,
+      barwidth = unit(1, "cm"),
+      barheight = unit(6, "cm"))) +
+  labs(fill = 'count') +
+  theme_void(base_size = 16)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave(here(public_path, 'pat_gz_grids_rescale_border.png'), 
+       width = 5, height = 6)
+```
+
+:::
+
+::: {.g-col-5}
+![](pat_gz_grids_rescale_border.png)
+:::
+
+:::
+
+
+
+## 地址分布点图
+
+使用分布点绘图的原理类似于地址分布网格图，但是其数据聚合方法是基于经纬度，而不是基于地理分布边界。数据点非常多的时候，用点图来展示地址分布一般更美观，因为其空间精度更高。
+
+### 经纬度点计数
+
+数据的预处理（转换成矢量点和筛选广州市内的点）步骤跟前述一致，此处不再重复叙述，我们直接从预处理好的数据`gz_point_sf_within`开始，可以通过`st_coordinates()`将`sf points`转换成包含经纬度坐标的数据框：
+
+```{r}
+gz_point_sf_within %>% 
+  st_coordinates() %>% 
+  head()
+```
+
+由于本数据的经纬度十分精细，对原始数据经纬度的计数过于精细，绘图时会重叠过多效果不佳。因此可将经纬度四舍五入到小数点后2位（大约为1km的精度），再对经纬度进行计数：
+
+```{r}
+gz_point_count = gz_point_sf_within %>% 
+  st_coordinates() %>% 
+  as_tibble() %>% 
+  mutate(X = round(X, 2),
+         Y = round(Y, 2)) %>% 
+  count(X, Y)
+
+gz_point_count
+```
+
+
+### 计数的经纬度转换成空间点
+
+```{r}
+gz_point_count_sf = st_as_sf(
+    gz_point_count, 
+    coords = c('X', 'Y'), 
+    crs = 4326) %>% 
+  arrange(n)
+gz_point_count_sf
+```
+
+### 绘图
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() +
+  geom_sf(data = CN_county %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray40', size = 0.2) +
+  geom_sf(data = gz_point_count_sf, 
+          aes(color = n), shape = 19, size = 1.5) +
+    geom_sf(data = CN_city %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray50', size = 0.6) +
+  scale_color_continuous(
+    type = "viridis", 
+    option = 'A', 
+    direction = -1, 
+    limits = c(0, 120), 
+    oob = scales::squish,
+    breaks = seq(0, 120, 20), 
+    labels = ~ ifelse(.x < 120, .x, '>120'),
+    guide = guide_colorsteps(
+      title = 'Count',
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 1,
+      show.limits = TRUE,
+      barwidth = unit(1, "cm"),
+      barheight = unit(6, "cm"))) +
+  labs(fill = 'count') +
+  theme_void(base_size = 16)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave(here(public_path, 'pat_gz_point_1.png'), 
+       width = 5, height = 6)
+```
+
+:::
+
+::: {.g-col-5}
+![](pat_gz_point_1.png)
+:::
+
+:::
+
+
+将广州市内的背景换成灰色
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() +
+  geom_sf(data = CN_county %>%
+            filter(市 == '广州市'),
+          fill = 'gray80', color = 'gray40', size = 0.2) +
+  geom_sf(data = gz_point_count_sf, 
+          aes(color = n), shape = 19, size = 1.5) +
+    geom_sf(data = CN_city %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray50', size = 0.6) +
+  scale_color_continuous(
+    type = "viridis", 
+    option = 'A', 
+    direction = -1, 
+    limits = c(0, 120), 
+    oob = scales::squish,
+    breaks = seq(0, 120, 20), 
+    labels = ~ ifelse(.x < 120, .x, '>120'),
+    guide = guide_colorsteps(
+      title = 'Count',
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 1,
+      show.limits = TRUE,
+      barwidth = unit(1, "cm"),
+      barheight = unit(6, "cm"))) +
+  labs(fill = 'count') +
+  theme_void(base_size = 16)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave(here(public_path, 'pat_gz_point_2.png'), 
+       width = 5, height = 6)
+```
+
+:::
+
+::: {.g-col-5}
+![](pat_gz_point_2.png)
+:::
+
+:::
+
+
+
+
+我们也可以把整个背景都换成灰色，可以通过调整`theme()`中的`plot.background`参数进行改变。
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() +
+  geom_sf(data = CN_county %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray40', size = 0.2) +
+  geom_sf(data = gz_point_count_sf, 
+          aes(color = n), shape = 19, size = 1.5) +
+  geom_sf(data = CN_city %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray50', size = 0.6) +
+  scale_color_continuous(
+    type = "viridis", 
+    option = 'A', 
+    direction = -1, 
+    limits = c(0, 120), 
+    oob = scales::squish,
+    breaks = seq(0, 120, 20), 
+    labels = ~ ifelse(.x < 120, .x, '>120'),
+    guide = guide_colorsteps(
+      title = 'Count',
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 1,
+      show.limits = TRUE,
+      barwidth = unit(1, "cm"),
+      barheight = unit(6, "cm"))) +
+  labs(fill = 'count') +
+  theme_void(base_size = 16) +
+  theme(plot.background = element_rect(
+          fill = "#d9d9d9", 
+          color = NA))
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave(here(public_path, 'pat_gz_point_3.png'), 
+       width = 5, height = 6)
+```
+
+:::
+
+::: {.g-col-5}
+![](pat_gz_point_3.png)
+:::
+
+:::
+
+点的形状可以是正方形、三角形、十字、叉、钻石等，可以通过`shape = XX`来进行指定，具体每个数字代表的图形可通过[此博文](https://blog.albertkuo.me/post/point-shape-options-in-ggplot/)进行学习。
+
+
+## 地址分布饼图
+
+### 数据整理
+
+```{r}
+gz_pie = gz_point_count %>% 
+  arrange(-n) %>% 
+  slice(1:30)
+```
+
+
+```{r}
+gz_pie_sf = gz_pie %>% 
+  st_as_sf(coords = c("X", "Y"), crs = 4326)
+```
+
+
+### 绘图
+
+需要改变的只是`shape`。此处我们设置`shape = 21`，因为此形状既支持`fill`，又支持`color`，能够给予绘图更多的维度和灵活性。
+
+::: {.grid}
+
+::: {.g-col-7}
+```{r}
+#| eval: false
+ggplot() +
+  geom_sf(data = CN_county %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray40', size = 0.2) +
+  geom_sf(data = gz_pie_sf, 
+          aes(size = n), 
+          fill = '#f768a1', color = '#7a0177', 
+          shape = 21, alpha = 0.5) +
+  geom_sf(data = CN_city %>%
+            filter(市 == '广州市'),
+          fill = NA, color = 'gray50', size = 0.6) +
+  scale_size_continuous(
+    range = c(0, 28),
+    limits = c(40, 4000),
+    name = 'N') +
+  labs(fill = 'count') +
+  theme_void(base_size = 16) +
+  theme(legend.position = 'left')
+```
+
+```{r}
+#| eval: false
+#| echo: false
+ggsave(here(public_path, 'pat_gz_pie_1.png'), 
+       width = 6, height = 6)
+```
+
+:::
+
+::: {.g-col-5}
+![](pat_gz_pie_1.png)
+:::
+
+:::
+
+
+# 期刊发表展示
+
+::: {.grid}
+
+::: {.g-col-5}
+![**Cai, M.**, et al. (2022) Ambient particulate matter pollution of different sizes associated with recurrent stroke hospitalization in China: a cohort study of 1.07 million stroke patients. ***Science of the Total Environment***. 159104. DOI: [10.1016/j.scitotenv.2022.159104](https://doi.org/10.1016/j.scitotenv.2022.159104)](STOTEN.png)
+:::
+
+::: {.g-col-7}
+![Benjamin, B., **Cai, M.**, et al. (2021) Acute Kidney Injury in a National Cohort of Hospitalized United States Veterans with COVID-19. ***Clinical Journal of the American Society of Nephrology (CJASN)*** 16(1), 14-25. DOI: [10.2215/CJN.09610620](https://doi.org/10.2215/CJN.09610620)](CJASN.png)
+:::
+
+::: {.g-col-5}
+![**Cai, M.**, et al. (2022) Association of ambient particulate matter pollution of different sizes with in-hospital case fatality among stroke patients in China. ***Neurology.*** 98(4), e2474-e2486. DOI: [10.1212/WNL.0000000000200546](https://doi.org/10.1212/WNL.0000000000200546)](Neurology.png)
+:::
+
+::: {.g-col-7}
+![**Cai, M.**, et al. (2022) "The Chasm in Percutaneous Coronary Intervention and In-hospital Mortality Rates among Acute Myocardial Infarction Patients in Rural and Urban Hospitals in China: A Mediation Analysis", ***International Journal of Public Health***. DOI: [10.3389/ijph.2022.1604846](https://doi.org/10.3389/ijph.2022.1604846)](IJPH.png)
+:::
+
+:::
+
+
+
+
+
+
+
+
 
 ```{r}
 #| eval: false
@@ -473,20 +1210,24 @@ ggplot() +
 pm_gz_sf = st_as_sf(pm_gz, as_points = FALSE, merge = FALSE)
 
 ggplot() +
-  geom_sf(data = pm_gz_sf, aes(fill = CHAP_PM2.5_Guangzhou.tif), color = 'white', size = 0.1) +
-  scale_fill_viridis(option = 'A', direction = -1, na.value = 'white', breaks = 20:30) +
+  geom_sf(
+    data = pm_gz_sf, 
+    aes(fill = CHAP_PM2.5_Guangzhou.tif), 
+    color = 'white', 
+    size = 0.1) +
+  scale_fill_viridis(
+    option = 'A', 
+    direction = -1, 
+    na.value = 'white', 
+    breaks = 20:30) +
   labs(fill = latex2exp::TeX('PM$_{2.5}$')) +
-  guides(fill = guide_coloursteps( # guide_colourbar
+  guides(fill = guide_coloursteps(
       title.position = "top",
-      title.theme = element_text(size = 16),
       title.hjust = 0.5,
       label.hjust = 1,
       show.limits = TRUE,
       barwidth = unit(0.7, "cm"),
-      barheight = unit(7, "cm"),
-      ticks = FALSE,
-      ticks.colour = 'white',
-      ticks.linewidth = 1.5)) +
+      barheight = unit(7, "cm"))) +
   theme_void(base_size = 16) +
   coord_sf(crs = 4326)
 ggsave('raster-data-example.png', width = 6, height = 6)

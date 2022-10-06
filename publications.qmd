@@ -20,7 +20,7 @@ navbar: right
 
 -   **Cai, M.**, Zhang, S., Lin, X., Qian, Z., McMillin, S.E., Yang, Y., Zhang, Z., Pan, J., Lin, H.. (2022) Association of ambient particulate matter pollution of different sizes with in-hospital case fatality among stroke patients in China. ***Neurology.*** 98(4), e2474-e2486. DOI: [10.1212/WNL.0000000000200546](https://doi.org/10.1212/WNL.0000000000200546)
 
--   **Cai, M.**, Lin, X., Wang, X., Zhang, S., Qian, Z., McMillin, S.E., Aaron, H.E., Lin, H., Wei, J., Zhang, Z., Pan, J. (2022) Ambient particulate matter pollution of different sizes associated with recurrent stroke hospitalization in China: a cohort study of 1.07 million stroke patients. ***Science of the Total Environment***.
+-   **Cai, M.**, Lin, X., Wang, X., Zhang, S., Qian, Z., McMillin, S.E., Aaron, H.E., Lin, H., Wei, J., Zhang, Z., Pan, J. (2022) Ambient particulate matter pollution of different sizes associated with recurrent stroke hospitalization in China: a cohort study of 1.07 million stroke patients. ***Science of the Total Environment***. 159104. DOI: [10.1016/j.scitotenv.2022.159104](https://doi.org/10.1016/j.scitotenv.2022.159104)
 
 -   **Cai, M.**, Liu, E., Bai, P., Zhang, N., Wang, S., Li, W., Lin, H., Lin, X.∗. (2022) "The Chasm in Percutaneous Coronary Intervention and In-hospital Mortality Rates among Acute Myocardial Infarction Patients in Rural and Urban Hospitals in China: A Mediation Analysis", ***International Journal of Public Health***. DOI: [10.3389/ijph.2022.1604846](https://doi.org/10.3389/ijph.2022.1604846)
 
