@@ -215,5 +215,61 @@
     "title": "个体地址的空间绘图",
     "section": "地址分布饼图",
     "text": "地址分布饼图\n\n数据整理\n\ngz_pie = gz_point_count %>% \n  arrange(-n) %>% \n  slice(1:30)\n\n\ngz_pie_sf = gz_pie %>% \n  st_as_sf(coords = c(\"X\", \"Y\"), crs = 4326)\n\n\n\n绘图\n需要改变的只是shape。此处我们设置shape = 21，因为此形状既支持fill，又支持color，能够给予绘图更多的维度和灵活性。\n\n\n\nggplot() +\n  geom_sf(data = CN_county %>%\n            filter(市 == '广州市'),\n          fill = NA, color = 'gray40', size = 0.2) +\n  geom_sf(data = gz_pie_sf, \n          aes(size = n), \n          fill = '#f768a1', color = '#7a0177', \n          shape = 21, alpha = 0.5) +\n  geom_sf(data = CN_city %>%\n            filter(市 == '广州市'),\n          fill = NA, color = 'gray50', size = 0.6) +\n  scale_size_continuous(\n    range = c(0, 28),\n    limits = c(40, 4000),\n    name = 'N') +\n  labs(fill = 'count') +\n  theme_void(base_size = 16) +\n  theme(legend.position = 'left')"
+  },
+  {
+    "objectID": "posts/tutorial-spatial-map/tutorial-spatial-map.html#section",
+    "href": "posts/tutorial-spatial-map/tutorial-spatial-map.html#section",
+    "title": "蔡苗 | Miao Cai",
+    "section": "",
+    "text": "R语言与地图绘制\n\n\n\n蔡苗\n\n\n\n2022年10月"
+  },
+  {
+    "objectID": "posts/tutorial-spatial-map/tutorial-spatial-map.html#公共卫生科研中的空间数据",
+    "href": "posts/tutorial-spatial-map/tutorial-spatial-map.html#公共卫生科研中的空间数据",
+    "title": "蔡苗 | Miao Cai",
+    "section": "公共卫生科研中的空间数据",
+    "text": "公共卫生科研中的空间数据\n\n\nAuthor\n\nA cohort of over 1 million participants\nA prospective cohort of half a million participants\nA nationally representative sample\n\n\nReviewer\n\n中国是哪里？\n广西是哪里？\n病人在哪里？\n样本主要在东西南北哪边？"
+  },
+  {
+    "objectID": "posts/tutorial-spatial-map/tutorial-spatial-map.html#数据类型",
+    "href": "posts/tutorial-spatial-map/tutorial-spatial-map.html#数据类型",
+    "title": "蔡苗 | Miao Cai",
+    "section": "数据类型",
+    "text": "数据类型\n\n\n\n栅格数据（raster data）：一般是规整的相等面积的长方形格子。\n常见数据格式：.tif和.nc。 \n\n\n\n矢量数据（vector data）：点、线、多边形（polygons）。\n常见数据格式：.shp。"
+  },
+  {
+    "objectID": "posts/tutorial-spatial-map/tutorial-spatial-map.html#相关r包",
+    "href": "posts/tutorial-spatial-map/tutorial-spatial-map.html#相关r包",
+    "title": "蔡苗 | Miao Cai",
+    "section": "相关R包",
+    "text": "相关R包\n\n\n栅格数据（raster data）\n\n新：stars\n旧：raster, terra\n\n\n矢量数据\n\n新：sf\n旧：sp\n\n\n\n\n\n\n\n\n\nstars\n\n\n\n\n\n\n\n\nsf"
+  },
+  {
+    "objectID": "posts/tutorial-spatial-map/tutorial-spatial-map.html#相关函数",
+    "href": "posts/tutorial-spatial-map/tutorial-spatial-map.html#相关函数",
+    "title": "蔡苗 | Miao Cai",
+    "section": "相关函数",
+    "text": "相关函数\n读取数据\n\n矢量数据：sf::read_sf()\n栅格数据：\n\n新：stars::read_stars()\n旧：raster::raster(), terra\n\n\n数据绘图\n此处只介绍运用ggplot2图层语法进行绘图的函数\n\n矢量数据：geom_sf()\n栅格数据：geom_stars()"
+  },
+  {
+    "objectID": "posts/tutorial-spatial-map/tutorial-spatial-map.html#加载环境",
+    "href": "posts/tutorial-spatial-map/tutorial-spatial-map.html#加载环境",
+    "title": "蔡苗 | Miao Cai",
+    "section": "加载环境",
+    "text": "加载环境\n首先需要加载R环境和相关的包。如果你使用的是课题组的Linux服务器，则下面三行均需要运行。如果你使用自己的电脑，或者你的R包环境已经配置好，可以忽略pacman::p_load下面的那两句。\n\npacman::p_load(raster, sf, stars, cubelyr, dplyr, ggplot2, viridis, here, ggspatial)\n\noptions(rgl.useNULL = TRUE)\nSys.setenv(PROJ_LIB = '/data1/Software/Installed/Anaconda3/envs/r4.1/share/proj')"
+  },
+  {
+    "objectID": "posts/tutorial-spatial-map/tutorial-spatial-map.html#test",
+    "href": "posts/tutorial-spatial-map/tutorial-spatial-map.html#test",
+    "title": "蔡苗 | Miao Cai",
+    "section": "test",
+    "text": "test\n\n1 + 1"
+  },
+  {
+    "objectID": "posts/tutorial-spatial-map/tutorial-spatial-map.html#test-output",
+    "href": "posts/tutorial-spatial-map/tutorial-spatial-map.html#test-output",
+    "title": "蔡苗 | Miao Cai",
+    "section": "test",
+    "text": "test\n\n[1] 2"
   }
 ]

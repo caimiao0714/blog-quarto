@@ -1,0 +1,165 @@
+---
+format: 
+  revealjs:
+    slide-number: true
+    width: 1920
+    height: 1080
+    theme: simple
+link-citations: yes
+execute:
+    freeze: auto
+---
+
+##  {background-image="Figures/CJASN.png" background-size='contain' background-position="right"}
+
+<br>
+
+<h1> R语言与地图绘制 </h1> 
+
+<br>
+
+<h3> 蔡苗</h3> 
+
+<br>
+
+<h3>2022年10月</h3> 
+
+<br>
+
+## 公共卫生科研中的空间数据
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**Author**
+
+- A cohort of over 1 million participants
+
+- A prospective cohort of half a million participants
+
+- A nationally representative sample
+:::
+
+::: {.column width="50%"}
+**Reviewer**
+
+- 中国是哪里？
+
+- 广西是哪里？
+
+- 病人在哪里？
+
+- 样本主要在东西南北哪边？
+:::
+
+::::
+
+
+
+
+# 空间数据总述
+
+在公共卫生的科研论文或标书撰写过程中，我们常常需要使用地址数据。此时，能用可视化的方式展示样本的空间分布往往能够给编辑或审稿人较好的印象分。
+
+## 数据类型
+
+:::: {.columns}
+
+::: {.column width="50%"}
+- **栅格数据（raster data）**：一般是规整的相等面积的长方形格子。
+- 常见数据格式：`.tif`和`.nc`。
+![栅格数据示例（广州市PM$_{2.5}$浓度分布）](Figures/raster-data-example-noborder.png){width="80%"}
+:::
+
+::: {.column width="50%"}
+- 矢量数据（vector data）：点、线、多边形（polygons）。
+- 常见数据格式：`.shp`。
+![矢量数据示例（广州市区县边界）](Figures/vector-data-example.png){width="80%"}
+:::
+
+::::
+
+
+## 相关R包
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**栅格数据（raster data）**
+
+  -   新：`stars`
+  -   旧：`raster`, `terra`
+
+:::
+
+::: {.column width="50%"}
+**矢量数据**
+
+  -   新：`sf`
+  -   旧：`sp`
+:::
+
+::::
+
+
+
+:::: {.columns}
+
+::: {.column width="50%"}
+<center>
+![`stars`](Figures/stars-hex.png){width=10cm}
+</center>
+:::
+
+::: {.column width="50%"}
+<center>
+![`sf`](Figures/sf-hex.png){width=10cm}
+</center>
+:::
+
+::::
+
+
+
+## 相关函数
+
+### 读取数据
+
+-   矢量数据：`sf::read_sf()`
+-   栅格数据：
+    -   新：`stars::read_stars()`
+    -   旧：`raster::raster()`, `terra`
+    
+### 数据绘图
+
+此处只介绍运用`ggplot2`图层语法进行绘图的函数
+
+-   矢量数据：`geom_sf()`
+-   栅格数据：`geom_stars()`
+
+
+
+# R语言实践
+
+## 加载环境
+
+首先需要加载R环境和相关的包。如果你使用的是课题组的Linux服务器，则下面三行均需要运行。如果你使用自己的电脑，或者你的R包环境已经配置好，可以忽略`pacman::p_load`下面的那两句。
+
+```{r}
+#| echo: true
+#| eval: false
+pacman::p_load(raster, sf, stars, cubelyr, dplyr, ggplot2, viridis, here, ggspatial)
+
+options(rgl.useNULL = TRUE)
+Sys.setenv(PROJ_LIB = '/data1/Software/Installed/Anaconda3/envs/r4.1/share/proj')
+```
+
+
+## test
+
+```{r}
+#| echo: true
+#| output-location: slide
+1 + 1
+```
+
