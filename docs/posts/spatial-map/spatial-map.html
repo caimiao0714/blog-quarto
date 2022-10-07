@@ -224,10 +224,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#数据读取" id="toc-数据读取" class="nav-link" data-scroll-target="#数据读取">数据读取</a></li>
   <li><a href="#栅格数据清理" id="toc-栅格数据清理" class="nav-link" data-scroll-target="#栅格数据清理">栅格数据清理</a></li>
   <li><a href="#栅格数据绘制-1" id="toc-栅格数据绘制-1" class="nav-link" data-scroll-target="#栅格数据绘制-1">栅格数据绘制</a></li>
-  <li><a href="#栅格和矢量数据混合绘制" id="toc-栅格和矢量数据混合绘制" class="nav-link" data-scroll-target="#栅格和矢量数据混合绘制">栅格和矢量数据混合绘制</a></li>
   </ul></li>
   <li><a href="#矢量和栅格数据交互处理" id="toc-矢量和栅格数据交互处理" class="nav-link" data-scroll-target="#矢量和栅格数据交互处理">矢量和栅格数据交互处理</a>
   <ul class="collapse">
+  <li><a href="#栅格和矢量数据混合绘制" id="toc-栅格和矢量数据混合绘制" class="nav-link" data-scroll-target="#栅格和矢量数据混合绘制">栅格和矢量数据混合绘制</a></li>
   <li><a href="#矢量-rightarrow-等面积格子" id="toc-矢量-rightarrow-等面积格子" class="nav-link" data-scroll-target="#矢量-rightarrow-等面积格子">矢量 <span class="math inline">\(\rightarrow\)</span> 等面积格子</a></li>
   <li><a href="#栅格-rightarrow-矢量" id="toc-栅格-rightarrow-矢量" class="nav-link" data-scroll-target="#栅格-rightarrow-矢量">栅格 <span class="math inline">\(\rightarrow\)</span> 矢量</a></li>
   <li><a href="#基于矢量边界选出栅格数据" id="toc-基于矢量边界选出栅格数据" class="nav-link" data-scroll-target="#基于矢量边界选出栅格数据">基于矢量边界选出栅格数据</a></li>
@@ -720,6 +720,9 @@ M: CHAP_PM2.5_Guangzhou.tif [dbl[,136]]</code></pre>
 </div>
 </div>
 </section>
+</section>
+<section id="矢量和栅格数据交互处理" class="level2">
+<h2 class="anchored" data-anchor-id="矢量和栅格数据交互处理">矢量和栅格数据交互处理</h2>
 <section id="栅格和矢量数据混合绘制" class="level3">
 <h3 class="anchored" data-anchor-id="栅格和矢量数据混合绘制">栅格和矢量数据混合绘制</h3>
 <p>单纯的栅格数据比较单调，缺少行政边界信息。通过<code>ggplot2</code>的图层，我们可以轻松地加上矢量边界信息。</p>
@@ -755,9 +758,6 @@ M: CHAP_PM2.5_Guangzhou.tif [dbl[,136]]</code></pre>
 </div>
 </div>
 </section>
-</section>
-<section id="矢量和栅格数据交互处理" class="level2">
-<h2 class="anchored" data-anchor-id="矢量和栅格数据交互处理">矢量和栅格数据交互处理</h2>
 <section id="矢量-rightarrow-等面积格子" class="level3">
 <h3 class="anchored" data-anchor-id="矢量-rightarrow-等面积格子">矢量 <span class="math inline">\(\rightarrow\)</span> 等面积格子</h3>
 <p>我们可以通过<code>sf::st_make_grid()</code>函数将行政边界转换成相等大小的格子，类似栅格数据。</p>
@@ -810,7 +810,12 @@ M: CHAP_PM2.5_Guangzhou.tif [dbl[,136]]</code></pre>
 </div>
 </div>
 <div class="g-col-5">
-<p><img src="gz_grids-0.5.png" class="img-fluid"></p>
+<div id="fig-gz_grids-0.5" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="gz_grids-0.5.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure 1: 广州市5*5km矢量格子</figcaption><p></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -878,6 +883,7 @@ Geodetic CRS:  WGS 84
 <li>错误：<code>geom_sf(data = XX, fill = PM2.5)</code></li>
 <li>正确：<code>geom_sf(data = XX, aes(fill = PM2.5))</code></li>
 </ul>
+<p>在<code>aes()</code>里面或外面的规则是：如果需要绘制特征随着数据框里面的变量变化而变化，则应该放在<code>aes()</code>里面；如果不涉及任何数据框中的变量，则应该在<code>aes()</code>外面。</p>
 <div class="grid">
 <div class="g-col-7">
 <div class="cell">
@@ -985,9 +991,16 @@ y   76 83 23.9297 -0.01 WGS 84 FALSE   NULL [y]</code></pre>
 </div>
 </div>
 <div class="g-col-5">
-<p><img src="yuexiu-pm2.5-border.png" class="img-fluid"></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="yuexiu-pm2.5-border.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">广州市越秀区PM<span class="math inline">\(_{2.5}\)</span>栅格数据分布及行政边界</figcaption><p></p>
+</figure>
 </div>
 </div>
+</div>
+<p>相对于用<code>sf::st_make_grid()</code>函数和矢量边界裁剪出来的格子（<a href="#fig-gz_grids-0.5">Figure&nbsp;1</a>），这里的格子均为正方形，而且在行政边界附近显得有些参差不齐。这是因为栅格数据一般必须为正方形或长方形，无法变成不规则的多边形，而在矢量数据中则可以通过边界裁剪变成不规则的多边形。</p>
+<p>另外在边界附近有些格子存在，而有些格子不存在，看起来似乎没有统一的规则。但是实际上用<code>st_crop()</code>的时候是有规则地筛选：默认会保留那些在矢量边界内部面积大于单个栅格面积一半的格子，而如果在矢量边界内部的面小于单个栅格面积一半，则不会被保留。</p>
 </section>
 </section>
 </section>

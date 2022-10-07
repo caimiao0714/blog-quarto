@@ -371,6 +371,11 @@ ggsave('pm_stars.png', width = 5, height = 6)
 
 
 
+
+
+
+## 矢量和栅格数据交互处理
+
 ### 栅格和矢量数据混合绘制
 
 单纯的栅格数据比较单调，缺少行政边界信息。通过`ggplot2`的图层，我们可以轻松地加上矢量边界信息。
@@ -415,9 +420,6 @@ ggsave('pm_stars_gz-border.png', width = 5, height = 6)
 
 :::
 
-
-
-## 矢量和栅格数据交互处理
 
 ### 矢量 $\rightarrow$ 等面积格子
 
@@ -489,7 +491,7 @@ ggsave('gz_grids-0.5.png', width = 5, height = 7)
 :::
 
 ::: {.g-col-5}
-![](gz_grids-0.5.png)
+![广州市5*5km矢量格子](gz_grids-0.5.png){#fig-gz_grids-0.5}
 :::
 
 :::
@@ -549,6 +551,8 @@ ggsave('haizhu_grids_border.png', width = 7, height = 5)
 
 - 错误：`geom_sf(data = XX, fill = PM2.5)`
 - 正确：`geom_sf(data = XX, aes(fill = PM2.5))`
+
+在`aes()`里面或外面的规则是：如果需要绘制特征随着数据框里面的变量变化而变化，则应该放在`aes()`里面；如果不涉及任何数据框中的变量，则应该在`aes()`外面。
 
 ::: {.grid}
 
@@ -684,13 +688,20 @@ ggsave('yuexiu-pm2.5-border.png', width = 6, height = 6)
 :::
 
 ::: {.g-col-5}
-![](yuexiu-pm2.5-border.png)
+![广州市越秀区PM$_{2.5}$栅格数据分布及行政边界](yuexiu-pm2.5-border.png)
 :::
 
 :::
 
+相对于用`sf::st_make_grid()`函数和矢量边界裁剪出来的格子（@fig-gz_grids-0.5），这里的格子均为正方形，而且在行政边界附近显得有些参差不齐。这是因为栅格数据一般必须为正方形或长方形，无法变成不规则的多边形，而在矢量数据中则可以通过边界裁剪变成不规则的多边形。
 
-# 病人地址数据绘图实战
+另外在边界附近有些格子存在，而有些格子不存在，看起来似乎没有统一的规则。但是实际上用`st_crop()`的时候是有规则地筛选：默认会保留那些在矢量边界内部面积大于单个栅格面积一半的格子，而如果在矢量边界内部的面小于单个栅格面积一半，则不会被保留。
+
+
+
+
+病人地址数据绘图实战
+====================
 
 ```{r}
 gz_point_df = readr::read_csv(here(public_path, 'Guangzhou_points.csv'), show_col_types = FALSE)
