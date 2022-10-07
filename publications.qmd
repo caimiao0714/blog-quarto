@@ -2,6 +2,7 @@
 title: "Publications"
 linkcolor: '#08519c'
 navbar: right
+comments: false
 ---
 
 以第一作者身份发表于JAMA Network Open, Neurology, Environmental Health Perspectives等14种杂志。

@@ -21,6 +21,8 @@ website:
         text: 博客 | Blogs
       - href: publications.qmd
         text: 发表 | Publications
+      - href: cv.qmd
+        text: 简历 | CV
   #reader-mode: true
 
 format:
