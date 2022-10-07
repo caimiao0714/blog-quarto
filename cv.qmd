@@ -1,8 +1,14 @@
 ---
-title: "CV"
+title: "简历 | CV"
 linkcolor: '#08519c'
 navbar: right
 comments: false
+listing:
+  contents: CV
+  sort: "date desc"
+  type: default
+  sort-ui: false
+  filter-ui: false
 ---
 
 中文简历
