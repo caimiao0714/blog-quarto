@@ -27,7 +27,7 @@ comments: false
 
 我是蔡苗，现在是在美国退伍军人事务部的[临床流行病学研究中心(圣路易斯分部)](https://www.stlouis.va.gov/services/Clinical_Epidemiology_Center.asp)担任生物统计研究员，运用R, SAS和美国退伍军人的数据做临床流行病学的研究。
 
-我的研究兴趣是贝叶斯统计，可修复系统可靠性，临床流行病，环境流行病学。我的研究发表可以在[Google Scholar](https://scholar.google.com/citations?user=kjFCzEkAAAAJ&hl=en)和[Research Gate](https://www.researchgate.net/profile/Miao_Cai2)上查看，我在[GitHub](https://github.com/caimiao0714)上也比较活跃。
+我的研究兴趣是贝叶斯统计，可修复系统可靠性，临床流行病，环境流行病学。我的研究发表可以在[Google Scholar](https://scholar.google.com/citations?user=kjFCzEkAAAAJ&hl=en)和[Research Gate](https://www.researchgate.net/profile/Miao_Cai2)上查看，我在[GitHub](https://github.com/caimiao0714)上也比较活跃。[中文简历](https://caimiao0714.github.io/blog-quarto/CV/Miao_Cai_CV_Chinese_1.pdf)
 
 
 
