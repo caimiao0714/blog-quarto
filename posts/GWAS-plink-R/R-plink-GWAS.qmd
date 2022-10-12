@@ -38,6 +38,29 @@ plink2's
 `--set-all-var-ids flag` and `--rm-dup` and help address this.
 
 
+### Convert UKBB `.bgen` files 
+
+```{plink2}
+cd /data2/ShareData/UKBB/Genetics/Imputation\ BGEN/
+plink2 \
+    --bgen ukb_imp_chrXY_v3.bgen ref-first \
+    --sample ../Imputation\ sample/ukb22828_cXY_b0_v3_s486238.sample \
+	--keep /data1/Users/caim/UKBB/Papers/12_GWAS_air_kidney/Data/eid_include.txt \
+	--extract /data1/Users/caim/UKBB/Papers/Papers/12_GWAS_air_kidney/Data/test_SNP_XY.txt \
+    --make-bed \
+    --out plink2_ukb_imp_chrXY \
+    #--hwe 0.000001 \ 
+	--threads 80 \ 
+	--memory 482323 \ 
+	--native
+```
+
+
+
+
 # GSEA 
 
 [Gene Set Enrichment Analysis with ClusterProfiler](https://learn.gencore.bio.nyu.edu/rna-seq-analysis/gene-set-enrichment-analysis/)
+
+
+
