@@ -1,0 +1,43 @@
+---
+title: '用R和plink做GWAS'
+author: '蔡苗'
+date: '2022-10-04'
+categories:
+  - R
+  - GWAS
+  - plink
+#draft: false
+---
+
+- [GWAS pipeline](https://github.com/tbilab/Plink-Based-GWAS)
+
+Software: 
+
+- plink (please download the latest plink1.9 or plink2, otherwise you will waste a lot of time!!!)
+- shapeit
+- impute2
+
+other pre-requirements:
+
+- a cluster
+- genotyped data(plink format, transform to bed/bim/fam before running the pipeline if your genotyped data - is ped/map)
+- enough storage since very large files will be created during imputation procedure
+- R 3.4.3;gawk;python3.6.3
+
+[gwas_scripts](https://github.com/JoniColeman/gwas_scripts)
+
+- PLINK / PLINK2
+- R
+- EIGENSOFT
+- IMPUTE
+
+
+multiple variants having the same ID:
+
+plink2's 
+`--set-all-var-ids flag` and `--rm-dup` and help address this.
+
+
+# GSEA 
+
+[Gene Set Enrichment Analysis with ClusterProfiler](https://learn.gencore.bio.nyu.edu/rna-seq-analysis/gene-set-enrichment-analysis/)

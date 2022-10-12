@@ -53,3 +53,5 @@ comments:
 editor: source
 page-navigation: true
 collapse-level: 1
+execute:
+  cache: true
